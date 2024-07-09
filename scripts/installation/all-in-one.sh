@@ -687,7 +687,8 @@ function main() {
       setup_cloud
       setup_edge
       # wait all nodes to be ready
-      kubectl wait --for=condition=ready node --all
+      echo "finish setup edge"
+      kubectl wait --for=condition=ready --timeout=120s node --all 
 
       # edgemesh need to be installed before sedna
       install_edgemesh
