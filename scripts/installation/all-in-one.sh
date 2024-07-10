@@ -521,7 +521,7 @@ function create_and_setup_edgenodes() {
       # does not exist, create one container for this edge
       "${run_cmds[@]}"
     fi
-    echo "$containername and ${CLOUDCORE_EXPOSED_ADDR} ${CLOUDCORE_EXPOSED_CERT_PORT} $KUBEEDGE_TOKEN $version $hostname"
+    echo "$containername and ${CLOUDCORE_EXPOSED_ADDR} ${CLOUDCORE_EXPOSED_CERT_PORT} $KUBEEDGE_TOKEN ${KUBEEDGE_VERSION/v} $hostname"
     # install edgecore using keadm join
     local version=${KUBEEDGE_VERSION/v}
     docker exec -i $containername bash -uec "
