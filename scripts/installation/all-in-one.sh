@@ -354,10 +354,13 @@ spec:
 EOF
 
   # wait this script been executed
+  echo "before kubectl rollout"
   kubectl -n kubeedge rollout status --timeout=5m ds $script_name
+  echo "finish kubectl rollow"
   # wait all edge nodes to be ready if restarted
+  echo "before reconfigure edge core kubectl wait"
   kubectl wait --for=condition=ready node -l node-role.kubernetes.io/edge=
-
+  echo "finish  reconfigure edge core kubectl wait"
   # keep this daemonset script for debugging
   # kubectl -n kubeedge delete ds $script_name
 
