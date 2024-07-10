@@ -404,12 +404,14 @@ function install_edgemesh() {
 
   # enable Local APIServer
   reconfigure_cloudcore '.modules.dynamicController.enable=true'
-
+  echo "finish reconfigure cloud core "
+	
   reconfigure_edgecore '
     .modules.edged.clusterDNS="169.254.96.16"
     | .modules.edged.clusterDomain="cluster.local"
     | .modules.metaManager.metaServer.enable=true
   '
+  echo "finish reconfigure edge core"
 
   # no server.publicIP
   # since allinone is in flat network, we just use private ip for edgemesh server
