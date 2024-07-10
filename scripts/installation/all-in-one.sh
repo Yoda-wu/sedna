@@ -507,11 +507,13 @@ function create_and_setup_edgenodes() {
       fi
     else
       # does not exist, create one container for this edge
+      log_info "run docker run command"
       "${run_cmds[@]}"
     fi
 
     # install edgecore using keadm join
     local version=${KUBEEDGE_VERSION/v}
+    log_info "run docker exec container command"
     docker exec -i $containername bash -uec "
       pgrep edgecore >/dev/null || {
         keadm join \
@@ -531,6 +533,7 @@ function create_and_setup_edgenodes() {
 
     "
     # fix cni config file
+    log_info "fix cni config file"
     gen_cni_config | docker exec -i $containername tee /etc/cni/net.d/10-edgecni.conflist >/dev/null
 
     {
@@ -538,6 +541,7 @@ function create_and_setup_edgenodes() {
       nwait=20
       for((i=0;i<nwait;i++)); do
         kubectl get node $hostname &>/dev/null && break
+	log_info "In nwait process"
         sleep 3
       done
     } &
@@ -560,12 +564,16 @@ function get_docker_network_gw() {
 
 function setup_cloud() {
   create_k8s_cluster
-
+  log_info "finish create k8s cluster"
+	
   patch_kindnet
+  log_info "finish patch kindnet"
 
   setup_control_kubeconfig
+  log_info "finish setup control kubeconfig"
 
   setup_cloudcore
+  log_info "finish setup cloudcore"
 }
 
 function clean_cloud() {
@@ -681,7 +689,9 @@ function ensure_tools() {
 
 function main() {
   ensure_tools
+  log_info "finish ensure_tools"
   prepare_env
+  log_info "finish prepare_env"
   action=${1-create}
 
   case "$action" in
@@ -689,9 +699,9 @@ function main() {
       setup_cloud
       setup_edge
       # wait all nodes to be ready
-      echo "finish setup edge"
+      log_info "finish setup edge"
       kubectl wait --for=condition=ready --timeout=120s node --all 
-      echo  "finish kubectl wait node"
+      log_info  "finish kubectl wait node"
       # edgemesh need to be installed before sedna
       install_edgemesh
       install_sedna
