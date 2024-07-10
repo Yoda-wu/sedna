@@ -124,6 +124,7 @@ function _log() {
   local level=$1
   shift
   timestamp=$(date +"[$level%m%d %H:%M:%S.%3N]")
+  # shellcheck disable=SC2145
   echo "$timestamp $@"
 }
 
@@ -180,6 +181,7 @@ function create_k8s_cluster() {
 
   local extra_options=(--wait 90s)
   [ -n "$RETAIN_CONTAINER" ] && extra_options+=(--retain)
+  # shellcheck disable=SC2068
   gen_kind_config | kind create cluster ${extra_options[@]} --config -
 
 }
@@ -359,6 +361,12 @@ EOF
   echo "finish kubectl rollow"
   # wait all edge nodes to be ready if restarted
   echo "before reconfigure edge core kubectl wait"
+  timeout=30
+  for((i =1; i<timeout; i++)); do
+    kubectl wait --for=condition=ready node --all
+    echo "Waiting edge nodes to be ready, $i seconds..."
+    sleep 2
+  done
   kubectl wait --for=condition=ready --timeout=2m node -l node-role.kubernetes.io/edge=
   echo "finish  reconfigure edge core kubectl wait"
   # keep this daemonset script for debugging
@@ -408,7 +416,7 @@ function install_edgemesh() {
   # enable Local APIServer
   reconfigure_cloudcore '.modules.dynamicController.enable=true'
   echo "finish reconfigure cloud core "
-	
+
   reconfigure_edgecore '
     .modules.edged.clusterDNS="169.254.96.16"
     | .modules.edged.clusterDomain="cluster.local"
