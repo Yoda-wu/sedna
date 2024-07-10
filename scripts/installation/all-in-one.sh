@@ -226,33 +226,32 @@ function setup_cloudcore() {
 
   # keadm accepts version format: 1.8.0
   local version=${KUBEEDGE_VERSION/v}
-  run_in_control_plane bash -euc "
+  run_in_control_plane bash -euc"
     # install cloudcore
-    echo $CLOUDCORE_ADVERTISE_ADDRESSES
+    echo \" install cloudcore\"
     pgrep cloudcore >/dev/null || {
       # keadm 1.8.1 is incompatible with 1.9.1 since crds' upgrade
       rm -rf /etc/kubeedge/crds
-      echo \" before keadm init \"
-      keadm init --kubeedge-version=$version --advertise-address=$CLOUDCORE_ADVERTISE_ADDRESSES
-      echo \" finish keadm init \"
+      echo \"before keadm init\"	
+      keadm init --kubeedge-version=$version --advertise-address=$CLOUDCORE_ADVERTISE_ADDRESSES"'
     }
-    echo \"before token to be created\"
+    echo \" wait for token\"	
     # wait token to be created
     exit_code=1
     TIMEOUT=30 # in seconds
     for((i=1;i<=TIMEOUT; i++)); do
       keadm gettoken >/dev/null 2>&1 && exit_code=0 && break
-      echo -ne \"Waiting cloudcore to generate token, \$i seconds...\r\"
+      echo -ne "Waiting cloudcore to generate token, $i seconds...\r"
       sleep 1
     done
     echo
-    if [ \$exit_code -gt 0 ]; then
+    if [ $exit_code -gt 0 ]; then
       log_lines=50
-      tail -n \$log_lines /var/log/kubeedge/cloudcore.log | sed \"s/^/    /\"
-      echo \"Timeout to wait cloudcore, above are the last \$log_lines log of cloudcore.\"
+      tail -$log_lines /var/log/kubeedge/cloudcore.log | sed "s/^/    /"
+      echo "Timeout to wait cloudcore, above are the last $log_lines log of cloudcore."
     fi
-    exit \$exit_code
-  "
+    exit $exit_code
+  '
   KUBEEDGE_TOKEN=$(run_in_control_plane keadm gettoken)
 }
 
