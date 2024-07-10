@@ -189,10 +189,6 @@ function clean_k8s_cluster() {
 }
 
 function run_in_control_plane() {
-
-  log_info " run control plane"
-  log_info $CONTROL_PLANE_NAME
-  log_info $@
   docker exec -i $CONTROL_PLANE_NAME "$@"
 }
 
@@ -226,7 +222,7 @@ function setup_cloudcore() {
   CLOUDCORE_EXPOSED_CERT_PORT=$(get_control_plane_exposed_port $CLOUDCORE_CERT_PORT)
   CLOUDCORE_ADVERTISE_ADDRESSES=$CLOUDCORE_LOCAL_IP,$CLOUDCORE_EXPOSED_IP
   CLOUDCORE_EXPOSED_ADDR=$CLOUDCORE_EXPOSED_IP:$CLOUDCORE_EXPOSED_WS_PORT
-  log_info "---before run incontrol plane"
+
   # keadm accepts version format: 1.8.0
   local version=${KUBEEDGE_VERSION/v}
   run_in_control_plane bash -euc "
@@ -234,7 +230,7 @@ function setup_cloudcore() {
     pgrep cloudcore >/dev/null || {
       # keadm 1.8.1 is incompatible with 1.9.1 since crds' upgrade
       rm -rf /etc/kubeedge/crds
-      echo \" before keadm init\"
+
       keadm init --kubeedge-version=$version --advertise-address=$CLOUDCORE_ADVERTISE_ADDRESSES"'
     }
 
@@ -392,7 +388,6 @@ reconfigure_cloudcore() {
 function install_edgemesh() {
   if ((NUM_EDGE_NODES<1)); then
     # no edge node, no edgemesh
-    log_info "no edge node, no edgemesh"
     return
   fi
 
@@ -492,7 +487,7 @@ function create_and_setup_edgenodes() {
       --tty
       --detach $ALLINONE_NODE_IMAGE
     )
-    
+
     local existing_id=$(docker ps -qa --filter name=$containername --filter label=$label)
     if [ -n "$existing_id" ]; then
       if [ "${REUSE_EDGE_CONTAINER,,}" = true ] ; then
@@ -511,11 +506,9 @@ function create_and_setup_edgenodes() {
       fi
     else
       # does not exist, create one container for this edge
-      log_info "run docker run_cmd"
       "${run_cmds[@]}"
     fi
-    log_info "before docker exec"
- 
+
     # install edgecore using keadm join
     local version=${KUBEEDGE_VERSION/v}
     docker exec -i $containername bash -uec "
@@ -528,7 +521,7 @@ function create_and_setup_edgenodes() {
           --edgenode-name '$hostname' \
           --remote-runtime-endpoint unix:///var/run/containerd/containerd.sock \
           --runtimetype remote
-        
+
         # set imageGCHighThreshold to 100% for no image gc
         sed -i 's/imageGCHighThreshold:.*/imageGCHighThreshold: 100/' /etc/kubeedge/config/edgecore.yaml &&
           systemctl restart edgecore ||
@@ -566,16 +559,12 @@ function get_docker_network_gw() {
 
 function setup_cloud() {
   create_k8s_cluster
-  log_info "-----finish create k8s cluster"
 
   patch_kindnet
-  log_info "-----finish patch_kindnet"
 
   setup_control_kubeconfig
-  log_info "-----finish setup control kube config"
 
   setup_cloudcore
-  log_info "-----finish setup cloud core"
 }
 
 function clean_cloud() {
@@ -684,32 +673,26 @@ function ensure_helm() {
 
 function ensure_tools() {
   ensure_kind
-  log_info "-----finsih ensure kind"
   ensure_kubectl
-  log_info "-----finish ensure kubectl"
   ensure_helm
-  log_info "-----finish ensure helm"
 }
 
 function main() {
   ensure_tools
-  log_info "------finish ensure_tools"
   prepare_env
-  log_info "-----finish prepare_env"
   action=${1-create}
 
   case "$action" in
     create)
       setup_cloud
-      log_info "-----finish setup_cloud"
       setup_edge
-      log_info "-----finish setup_edge"
       # wait all nodes to be ready
+      log_info "finish setup edge"
       kubectl wait --for=condition=ready node --all
-      log_info "-----finish kubectl wait"	
+      log_info "finish kubectl wait"
+
       # edgemesh need to be installed before sedna
       install_edgemesh
-      log_info "-----finish install_edgemesh"
       install_sedna
       log_info "Mini Sedna is created successfully"
       ;;
