@@ -226,7 +226,7 @@ function setup_cloudcore() {
 
   # keadm accepts version format: 1.8.0
   local version=${KUBEEDGE_VERSION/v}
-  run_in_control_plane bash -euc"
+  run_in_control_plane bash -euc "
     # install cloudcore
     echo \" install cloudcore\"
     pgrep cloudcore >/dev/null || {
