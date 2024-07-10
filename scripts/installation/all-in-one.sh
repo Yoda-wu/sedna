@@ -189,6 +189,7 @@ function clean_k8s_cluster() {
 }
 
 function run_in_control_plane() {
+  log_info $CONTROL_PLANE_NAME
   docker exec -i $CONTROL_PLANE_NAME "$@"
 }
 
@@ -693,7 +694,7 @@ function main() {
   prepare_env
   log_info "finish prepare_env"
   action=${1-create}
-
+  
   case "$action" in
     create)
       setup_cloud
