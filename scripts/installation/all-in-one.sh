@@ -528,7 +528,7 @@ function create_and_setup_edgenodes() {
           --edgenode-name '$hostname' \
           --remote-runtime-endpoint unix:///var/run/containerd/containerd.sock \
           --runtimetype remote
-        echo \" finish keadm join\"
+        
         # set imageGCHighThreshold to 100% for no image gc
         sed -i 's/imageGCHighThreshold:.*/imageGCHighThreshold: 100/' /etc/kubeedge/config/edgecore.yaml &&
           systemctl restart edgecore ||
