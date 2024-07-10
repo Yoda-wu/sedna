@@ -567,7 +567,20 @@ function clean_edgenodes() {
 }
 
 function get_docker_network_gw() {
-  docker network inspect ${1-bridge} --format='{{(index .IPAM.Config 0).Gateway}}'
+  network_type=${1-bridge}
+  case $network_type in
+    bridge)
+      docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}'
+      ;;
+    kind)
+      docker network inspect kind --format='{{(index .IPAM.Config 1).Gateway}}'
+      ;;
+    *)
+      log_error "Unsupported network type: $network_type"
+      exit 1
+      ;;
+  esac
+#  docker network inspect ${1-bridge} --format='{{(index .IPAM.Config 0).Gateway}}'
 }
 
 function setup_cloud() {
