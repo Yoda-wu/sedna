@@ -190,7 +190,7 @@ function clean_k8s_cluster() {
 
 function run_in_control_plane() {
 
-  log_info "---in run control plane"
+  log_info " run control plane"
   log_info $CONTROL_PLANE_NAME
   log_info $@
   docker exec -i $CONTROL_PLANE_NAME "$@"
