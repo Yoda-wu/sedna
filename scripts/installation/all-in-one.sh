@@ -388,6 +388,7 @@ reconfigure_cloudcore() {
 function install_edgemesh() {
   if ((NUM_EDGE_NODES<1)); then
     # no edge node, no edgemesh
+    echo "no edge node, no edge mesh"
     return
   fi
 
@@ -581,6 +582,7 @@ function clean_edge() {
 
 function install_sedna() {
   if [[ "$NO_INSTALL_SEDNA" != "false" ]]; then
+    echo "NO_INSTALL_SEDNA != false"
     return
   fi
 
@@ -689,7 +691,7 @@ function main() {
       # wait all nodes to be ready
       echo "finish setup edge"
       kubectl wait --for=condition=ready --timeout=120s node --all 
-
+      echo  "finish kubectl wait node"
       # edgemesh need to be installed before sedna
       install_edgemesh
       install_sedna
