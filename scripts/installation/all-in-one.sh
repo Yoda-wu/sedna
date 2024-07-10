@@ -246,12 +246,12 @@ function setup_cloudcore() {
       sleep 1
     done
     echo
-    if [ $exit_code -gt 0 ]; then
+    if [ \$exit_code -gt 0 ]; then
       log_lines=50
-      tail -n $log_lines /var/log/kubeedge/cloudcore.log | sed \"s/^/    /\"
-      echo \"Timeout to wait cloudcore, above are the last $log_lines log of cloudcore.\"
+      tail -n \$log_lines /var/log/kubeedge/cloudcore.log | sed \"s/^/    /\"
+      echo \"Timeout to wait cloudcore, above are the last \$log_lines log of cloudcore.\"
     fi
-    exit $exit_code
+    exit \$exit_code
   "
   KUBEEDGE_TOKEN=$(run_in_control_plane keadm gettoken)
 }
