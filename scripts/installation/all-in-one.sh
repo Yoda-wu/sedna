@@ -242,13 +242,13 @@ function setup_cloudcore() {
     TIMEOUT=30 # in seconds
     for((i=1;i<=TIMEOUT; i++)); do
       keadm gettoken >/dev/null 2>&1 && exit_code=0 && break
-      echo -ne \"Waiting cloudcore to generate token, $i seconds...\r\"
+      echo -ne \"Waiting cloudcore to generate token, \$i seconds...\r\"
       sleep 1
     done
     echo
     if [ $exit_code -gt 0 ]; then
       log_lines=50
-      tail -$log_lines /var/log/kubeedge/cloudcore.log | sed \"s/^/    /\"
+      tail -n $log_lines /var/log/kubeedge/cloudcore.log | sed \"s/^/    /\"
       echo \"Timeout to wait cloudcore, above are the last $log_lines log of cloudcore.\"
     fi
     exit $exit_code
