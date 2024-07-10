@@ -228,13 +228,14 @@ function setup_cloudcore() {
   local version=${KUBEEDGE_VERSION/v}
   run_in_control_plane bash -euc "
     # install cloudcore
+    echo $CLOUDCORE_ADVERTISE_ADDRESSES
     pgrep cloudcore >/dev/null || {
       # keadm 1.8.1 is incompatible with 1.9.1 since crds' upgrade
       rm -rf /etc/kubeedge/crds
 
       keadm init --kubeedge-version=$version --advertise-address=$CLOUDCORE_ADVERTISE_ADDRESSES"'
     }
-
+    echo "before token to be created"
     # wait token to be created
     exit_code=1
     TIMEOUT=30 # in seconds
