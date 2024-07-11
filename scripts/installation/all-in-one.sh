@@ -151,7 +151,7 @@ nodes:
     image: $ALLINONE_NODE_IMAGE
     # expose kubeedge cloudcore
     extraPortMappings:
-    - containerPort: $CLOUDCORE_WS_PORT
+      - containerPort: $CLOUDCORE_WS_PORT
     - containerPort: $CLOUDCORE_CERT_PORT
 EOF
 
@@ -321,7 +321,7 @@ spec:
         volumeMounts:
         - name: config
           mountPath: /config
-        image: mikefarah/yq
+        image: g4nde60c.mirror.aliyuncs.com/mikefarah/yq
         command:
         - sh
         - -c
@@ -533,7 +533,7 @@ function create_and_setup_edgenodes() {
           --kubeedge-version '$version' \
           --edgenode-name '$hostname' \
           --remote-runtime-endpoint unix:///var/run/containerd/containerd.sock \
-          --runtimetype remote
+          --runtimetype remoteed
         crictl ps
         crictl ps \| grep kube-proxy \| awk '{print \$1}' \| xargs -r crictl rm -f
         crictl ps
