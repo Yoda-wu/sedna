@@ -124,7 +124,6 @@ function _log() {
   local level=$1
   shift
   timestamp=$(date +"[$level%m%d %H:%M:%S.%3N]")
-  # shellcheck disable=SC2145
   echo "$timestamp $@"
 }
 
@@ -151,7 +150,7 @@ nodes:
     image: $ALLINONE_NODE_IMAGE
     # expose kubeedge cloudcore
     extraPortMappings:
-      - containerPort: $CLOUDCORE_WS_PORT
+    - containerPort: $CLOUDCORE_WS_PORT
     - containerPort: $CLOUDCORE_CERT_PORT
 EOF
 
@@ -181,7 +180,6 @@ function create_k8s_cluster() {
 
   local extra_options=(--wait 90s)
   [ -n "$RETAIN_CONTAINER" ] && extra_options+=(--retain)
-  # shellcheck disable=SC2068
   gen_kind_config | kind create cluster ${extra_options[@]} --config -
 
 }
@@ -224,7 +222,7 @@ function setup_cloudcore() {
   CLOUDCORE_EXPOSED_CERT_PORT=$(get_control_plane_exposed_port $CLOUDCORE_CERT_PORT)
   CLOUDCORE_ADVERTISE_ADDRESSES=$CLOUDCORE_LOCAL_IP,$CLOUDCORE_EXPOSED_IP
   CLOUDCORE_EXPOSED_ADDR=$CLOUDCORE_EXPOSED_IP:$CLOUDCORE_EXPOSED_WS_PORT
-  echo "CLOUDCORE_ADVERTISE_ADDRESSES=$CLOUDCORE_ADVERTISE_ADDRESSES, CLOUDCORE_EXPOSED_IP=$CLOUDCORE_EXPOSED_IP, CLOUDCORE_EXPOSED_ADDR=$CLOUDCORE_EXPOSED_ADDR"
+
   # keadm accepts version format: 1.8.0
   local version=${KUBEEDGE_VERSION/v}
   run_in_control_plane bash -euc "
@@ -356,19 +354,10 @@ spec:
 EOF
 
   # wait this script been executed
-  echo "before kubectl rollout"
   kubectl -n kubeedge rollout status --timeout=5m ds $script_name
-  echo "finish kubectl rollow"
   # wait all edge nodes to be ready if restarted
-  echo "before reconfigure edge core kubectl wait"
-  timeout=30
-  for((i =1; i<timeout; i++)); do
-    kubectl wait --for=condition=ready node --all
-    echo "Waiting edge nodes to be ready, $i seconds..."
-    sleep 2
-  done
-  kubectl wait --for=condition=ready --timeout=2m node -l node-role.kubernetes.io/edge=
-  echo "finish  reconfigure edge core kubectl wait"
+  kubectl wait --for=condition=ready node -l node-role.kubernetes.io/edge=
+
   # keep this daemonset script for debugging
   # kubectl -n kubeedge delete ds $script_name
 
@@ -415,14 +404,12 @@ function install_edgemesh() {
 
   # enable Local APIServer
   reconfigure_cloudcore '.modules.dynamicController.enable=true'
-  echo "finish reconfigure cloud core "
 
   reconfigure_edgecore '
     .modules.edged.clusterDNS="169.254.96.16"
     | .modules.edged.clusterDomain="cluster.local"
     | .modules.metaManager.metaServer.enable=true
   '
-  echo "finish reconfigure edge core"
 
   # no server.publicIP
   # since allinone is in flat network, we just use private ip for edgemesh server
@@ -521,7 +508,7 @@ function create_and_setup_edgenodes() {
       # does not exist, create one container for this edge
       "${run_cmds[@]}"
     fi
-    echo "$containername and ${CLOUDCORE_EXPOSED_ADDR} ${CLOUDCORE_EXPOSED_CERT_PORT} $KUBEEDGE_TOKEN ${KUBEEDGE_VERSION/v} $hostname"
+
     # install edgecore using keadm join
     local version=${KUBEEDGE_VERSION/v}
     docker exec -i $containername bash -uec "
@@ -533,10 +520,8 @@ function create_and_setup_edgenodes() {
           --kubeedge-version '$version' \
           --edgenode-name '$hostname' \
           --remote-runtime-endpoint unix:///var/run/containerd/containerd.sock \
-          --runtimetype remoteed
-        crictl ps
-        crictl ps \| grep kube-proxy \| awk '{print \$1}' \| xargs -r crictl rm -f
-        crictl ps
+          --runtimetype remote
+
         # set imageGCHighThreshold to 100% for no image gc
         sed -i 's/imageGCHighThreshold:.*/imageGCHighThreshold: 100/' /etc/kubeedge/config/edgecore.yaml &&
           systemctl restart edgecore ||
@@ -715,9 +700,7 @@ function main() {
       setup_cloud
       setup_edge
       # wait all nodes to be ready
-      log_info "finish setup edge"
       kubectl wait --for=condition=ready node --all
-      log_info "finish kubectl wait"
 
       # edgemesh need to be installed before sedna
       install_edgemesh
