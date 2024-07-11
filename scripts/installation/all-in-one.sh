@@ -319,7 +319,7 @@ spec:
         volumeMounts:
         - name: config
           mountPath: /config
-        image: mikefarah/yq
+        image: g4nde60c.mirror.aliyuncs.com/mikefarah/yq
         command:
         - sh
         - -c
