@@ -605,14 +605,14 @@ function install_sedna() {
       return
     fi
     run_in_control_plane bash -ec "
-    curl https://raw.githubusercontent.com/kubeedge/sedna/main/scripts/installation/install.sh | SEDNA_ACTION=clean SEDNA_VERSION=$SEDNA_VERSION bash -
+    curl https://raw.githubusercontent.com/Yoda-wu/sedna/main/scripts/installation/install.sh | SEDNA_ACTION=clean SEDNA_VERSION=$SEDNA_VERSION bash -
   "
   fi
 
   log_info "Installing Sedna Control Components..."
 
   run_in_control_plane bash -ec "
-    curl https://raw.githubusercontent.com/kubeedge/sedna/main/scripts/installation/install.sh | SEDNA_ACTION=create SEDNA_VERSION=$SEDNA_VERSION bash -
+    curl https://raw.githubusercontent.com/Yoda-wu/sedna/main/scripts/installation/install.sh | SEDNA_ACTION=create SEDNA_VERSION=$SEDNA_VERSION bash -
   "
 }
 
