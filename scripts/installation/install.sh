@@ -271,7 +271,7 @@ spec:
       serviceAccountName: sedna
       containers:
       - name: gm
-        image: kubeedge/sedna-gm:$SEDNA_VERSION
+        image: docker.m.daocloud.io/kubeedge/sedna-gm:$SEDNA_VERSION
         command: ["sedna-gm", "--config", "/config/$config_file_name", "-v2"]
         volumeMounts:
         - name: gm-config
