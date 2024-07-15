@@ -414,6 +414,8 @@ function install_edgemesh() {
   # no server.publicIP
   # since allinone is in flat network, we just use private ip for edgemesh server
  helm upgrade --install edgemesh \
+    --set agent.image=docker.m.daocloud.io/kubeedge/edgemesh-agent\
+    --set server.image=docker.m.daocloud.io/kubeedge/edgemesh-server\
     --set server.nodeName=$server_node_name \
     https://raw.githubusercontent.com/kubeedge/edgemesh/main/build/helm/edgemesh.tgz
 
