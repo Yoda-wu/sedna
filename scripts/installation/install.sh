@@ -169,7 +169,7 @@ spec:
       containers:
       - name: kb
         imagePullPolicy: IfNotPresent
-        image: kubeedge/sedna-kb:$SEDNA_VERSION
+        image: docker.m.daocloud.io/kubeedge/sedna-kb:$SEDNA_VERSION
         env:
           - name: KB_URL
             value: "sqlite:///db/kb.sqlite3"
@@ -320,7 +320,7 @@ spec:
     spec:
       containers:
         - name: lc
-          image: kubeedge/sedna-lc:$SEDNA_VERSION
+          image: docker.m.daocloud.io/kubeedge/sedna-lc:$SEDNA_VERSION
           env:
             - name: GM_ADDRESS
               value: $GM_ADDRESS
